@@ -34,6 +34,7 @@ namespace WebApplication4
                 setup.ReturnHttpNotAcceptable = true;//这里默认是FALSE，当前端请求头为xml的时候也不会返回406错误码，还是依旧返回JSON。 改为true则当请求类型和服务器支持的类型不一致就会返回406
                  //setup.OutputFormatters.Add(new Xml)
             });
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<ICompanyRepository, CompanyRepository>();//注册
             services.AddDbContext<RoutineDbContext>(options =>
             {
