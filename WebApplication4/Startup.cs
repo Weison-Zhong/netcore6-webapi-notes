@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,7 @@ namespace WebApplication4
             services.AddControllers(setup =>
             {
                 setup.ReturnHttpNotAcceptable = true;//这里默认是FALSE，当前端请求头为xml的时候也不会返回406错误码，还是依旧返回JSON。 改为true则当请求类型和服务器支持的类型不一致就会返回406
-                 //setup.OutputFormatters.Add(new Xml)
+                                                     //setup.OutputFormatters.Add(new Xml)
             });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<ICompanyRepository, CompanyRepository>();//注册
@@ -58,6 +59,17 @@ namespace WebApplication4
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication4 v1"));
+            }
+            else
+            {
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("Unexpected Error!");//当有异常时返回这个
+                    });
+                });
             }
 
             app.UseRouting();

@@ -15,6 +15,9 @@ namespace WebApplication4.Models.Profiles
             CreateMap<Company, CompanyDto>()
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Name));
             //dest目标的CompanyName从源头Name中映射
+
+
+            CreateMap<CompanyAddDto, Company>();
         }
     }
 }
