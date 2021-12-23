@@ -13,6 +13,9 @@ namespace WebApplication4.Models.Profiles
                 //.ForMember(dest => dest.Gender,opt=>opt.MapFrom(src=>))
                 .ForMember(dest => dest.Age, opt => opt.MapFrom(src => DateTime.Now.Year - src.DateOfBirth.Year))
                 ;
+
+            CreateMap<EmployeeAddDto, Employee>();
+            CreateMap<EmployeeUpdateDto, Employee>();
         }
     }
 }

@@ -180,6 +180,7 @@ namespace WebApplication4.Services
 
         public void UpdateEmployee(Employee employee)
         {
+            //就算什么都没，但是还要写的，这样context才能跟踪
         }
     }
 }
