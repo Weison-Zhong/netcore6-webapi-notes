@@ -83,10 +83,7 @@ namespace WebApplication4.Services
             {
                 throw new ArgumentNullException(nameof(parameters));
             }
-            if (string.IsNullOrWhiteSpace(parameters.CompanyName) && string.IsNullOrWhiteSpace(parameters.SearchTerm))
-            {
-                return await _context.Companies.ToListAsync();
-            }
+         
             var queryExpression = _context.Companies as IQueryable<Company>;
             if (!string.IsNullOrWhiteSpace(parameters.CompanyName))
             {
@@ -99,7 +96,14 @@ namespace WebApplication4.Services
                 queryExpression = queryExpression.Where(x => x.Name.Contains(parameters.SearchTerm) || x.Introduction.Contains(parameters.SearchTerm));
 
             }
-            return await queryExpression.ToListAsync();
+
+            //fen页
+            queryExpression = queryExpression.Skip(parameters.PageSize * (parameters.PageNumber - 1))// 跳过
+                .Take(parameters.PageSize);//跳过后取多少
+
+        
+
+            return await queryExpression.ToListAsync(); //这一行才是真正查询数据库
         }
 
         public async Task<IEnumerable<Company>> GetCompaninesAsync(IEnumerable<Guid> companyIds)
@@ -137,34 +141,45 @@ namespace WebApplication4.Services
                  .Where(x => x.CompanyId == companyId && x.Id == employeeId)
                  .FirstOrDefaultAsync();
         }
-
-        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId, string genderDisplay, string q)
+                                                                    //Guid companyId, string genderDisplay, string q
+        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId,EmployeeDtoParameters parameters)
         {
             if (companyId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(companyId));
             }
-            if (string.IsNullOrWhiteSpace(genderDisplay) && string.IsNullOrWhiteSpace(q))
-            {
-                return await _context.Employees
-                .Where(x => x.CompanyId == companyId)
-                .OrderBy(x => x.EmployeeNo)
-                .ToListAsync();
-            }
+            //if (string.IsNullOrWhiteSpace(parameters.Gender) && string.IsNullOrWhiteSpace(parameters.Q))
+            //{
+            //    return await _context.Employees
+            //    .Where(x => x.CompanyId == companyId)
+            //    .OrderBy(x => x.EmployeeNo)
+            //    .ToListAsync();
+            //}
             var items = _context.Employees.Where(x => x.CompanyId == companyId);//到这还没执行查询，下面还在继续拼接
-            if (!string.IsNullOrWhiteSpace(genderDisplay))
+            if (!string.IsNullOrWhiteSpace(parameters.Gender))
             {
-                genderDisplay = genderDisplay.Trim();
-                var gender = Enum.Parse<Gender>(genderDisplay);
+                parameters.Gender = parameters.Gender.Trim();
+                var gender = Enum.Parse<Gender>(parameters.Gender);
                 items = items.Where(x => x.Gender == gender);
             }
-            if (!string.IsNullOrWhiteSpace(q))
+            if (!string.IsNullOrWhiteSpace(parameters.Q))
             {
-                q = q.Trim();
+                parameters.Q = parameters.Q.Trim();
                 //模糊搜索
-                items = items.Where(x => x.EmployeeNo.Contains(q) || x.FirstName.Contains(q) || x.LastName.Contains(q));
+                items = items.Where(x => x.EmployeeNo.Contains(parameters.Q) || x.FirstName.Contains(parameters.Q) || x.LastName.Contains(parameters.Q));
             }
-            return await items.OrderBy(x => x.EmployeeNo).ToListAsync();
+
+            //paixu
+            if (!string.IsNullOrWhiteSpace(parameters.OrderBy))
+            {
+                if(parameters.OrderBy.ToLowerInvariant() == "name")
+                {
+                    items = items.OrderBy(x=>x.FirstName).ThenBy(x=>x.LastName);
+                }
+            }
+
+
+            return await items.ToListAsync();
         }
 
         public async Task<bool> SaveAsync()

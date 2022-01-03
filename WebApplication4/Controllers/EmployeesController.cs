@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WebApplication4.DtoParameters;
 using WebApplication4.Entities;
 using WebApplication4.Models;
 using WebApplication4.Services;
@@ -21,14 +22,14 @@ namespace WebApplication4.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
         }
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany(Guid companyId, [FromQuery(Name = "gender")] string genderA, string q)
+        [HttpGet]                                               //GetEmployeesForCompany(Guid companyId, [FromQuery(Name = "gender")] string genderA, string q)
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany(Guid companyId, [FromQuery]EmployeeDtoParameters parameters)
         {
             if (!await _companyRepository.CompanyExistsAsync(companyId))
             {
                 return NotFound();
             }
-            var employees = await _companyRepository.GetEmployeesAsync(companyId, genderA, q);
+            var employees = await _companyRepository.GetEmployeesAsync(companyId, parameters);
             var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
             return Ok(employeeDtos);
         }
@@ -82,6 +83,22 @@ namespace WebApplication4.Controllers
             _companyRepository.UpdateEmployee(employeeEntity);
             await _companyRepository.SaveAsync();
             return NoContent(); //204状态码
+        }
+        [HttpDelete("{employeeId}")]
+        public async Task<IActionResult> DeleteEmployeeForCompany(Guid companyId,Guid employeeId)
+        {
+            if (!await _companyRepository.CompanyExistsAsync(companyId))
+            {
+                return NotFound();
+            }
+            var employeeEntity = await _companyRepository.GetEmployeeAsync(companyId, employeeId);
+            if (employeeEntity == null)
+            {
+                return NotFound();
+            }
+            _companyRepository.DeleteEmployee(employeeEntity);
+            await _companyRepository.SaveAsync();
+            return NoContent();
         }
     }
 }

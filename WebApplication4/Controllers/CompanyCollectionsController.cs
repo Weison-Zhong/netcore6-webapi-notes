@@ -35,5 +35,19 @@ namespace WebApplication4.Controllers
             await companyRepository.SaveAsync();
             return Ok();
         }
+        //[HttpPut("{employeeId}")]
+        //public async Task<IActionResult> UpdateEmployeeFofCompany(Guid companyId,Guid employeeId,EmployeeAddOrUpdateDto employee)
+        //{
+        //    if(! await companyRepository.CompanyExistsAsync(companyId))
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var employeeEntity = await companyRepository.GetEmployeeAsync(companyId,employeeId);
+        //    if(employeeEntity == null)
+        //    {
+        //        var employeeToAddEntity = mapper.Map
+        //    }
+        //}
     }
 } 

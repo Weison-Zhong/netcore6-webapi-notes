@@ -79,5 +79,17 @@ namespace WebApplication4.Controllers
             //但是实际上好像没啥用，还是直接返回就可以了。    
             return CreatedAtRoute(nameof(GetCompany),new {companyId=returnDto.Id},returnDto);
         }
+        [HttpDelete("{companyId}")]
+        public async Task<IActionResult> DeleteCompany(Guid companyId)
+        {
+            var companyEntity = await _companyRepository.GetCompanyAsync(companyId);
+            if(companyEntity == null)
+            {
+                return NotFound();
+            }
+            _companyRepository.DeleteCompany(companyEntity);
+            await _companyRepository.SaveAsync();
+            return Ok(); 
+        }
     }
 }

@@ -23,8 +23,8 @@ namespace WebApplication4.Data
             modelBuilder.Entity<Employee>().Property(x => x.FirstName).IsRequired().HasMaxLength(50);
             modelBuilder.Entity<Employee>().Property(x => x.LastName).IsRequired().HasMaxLength(50);
             modelBuilder.Entity<Employee>().HasOne(x => x.Company).WithMany(x => x.Employees).HasForeignKey(x => x.CompanyId)
-                .OnDelete(DeleteBehavior.Restrict);//有员工的话无法删除
-                                                   //做假数据
+                .OnDelete(DeleteBehavior.Cascade);//Restrict有员工的话无法删除,Cascade是级联删除
+                                                  //做假数据
             modelBuilder.Entity<Company>().HasData(
                 new Company
                 {
